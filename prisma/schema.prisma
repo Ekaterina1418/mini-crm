@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  // output можно опустить, тогда клиент будет в node_modules/.prisma/client
+  // output = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  avatarUrl  String?
+  passwordHash String? 
+  role       String?
+  phone      String?
+  department String?
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model AuthUser {
+  id       String         @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         String?    // admin, manager, editor
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  user      AuthUser @relation(fields: [userId], references: [id])
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
