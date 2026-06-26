@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { computed, useAttrs } from "vue";
+
 const {
   severity = "primary",
   size = "md",
@@ -45,9 +46,11 @@ const onClick = (e: MouseEvent) => {
     e.stopImmediatePropagation();
     return;
   }
+
   emit("click", e);
 };
 </script>
+
 <style scoped>
 .app-btn {
   display: inline-flex;

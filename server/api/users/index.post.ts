@@ -1,8 +1,10 @@
 import { nanoid } from "nanoid";
 import { readBody } from "h3";
 import prisma from "~/server/db/prisma";
+import { requireAuth } from "~/server/utils/requireAuth";
 
 export default defineEventHandler(async (event) => {
+  await requireAuth(event);
   const body = await readBody(event);
 
   const created = await prisma.user.create({

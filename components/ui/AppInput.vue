@@ -9,6 +9,7 @@
     />
   </div>
 </template>
+
 <script setup lang="ts">
 defineProps<{
   label: string;
@@ -16,6 +17,7 @@ defineProps<{
   placeholder?: string;
   disabled?: boolean;
 }>();
+
 const modelValue = defineModel<string | null>();
 </script>
 
@@ -33,10 +35,10 @@ const modelValue = defineModel<string | null>();
 }
 
 .field input {
-  outline: none;
   min-height: 40px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  outline: none;
   padding: 8px 12px;
   background: var(--color-surface);
   transition:

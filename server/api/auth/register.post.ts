@@ -1,4 +1,5 @@
 import { readBody, createError } from "h3";
+import { Prisma } from "@prisma/client";
 import prisma from "~/server/db/prisma";
 import bcrypt from "bcryptjs";
 
@@ -7,10 +8,27 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const { email, password, name } = body;
 
-    const normalizedEmail = String(email ?? "").trim().toLowerCase();
+    const normalizedEmail = String(email ?? "")
+      .trim()
+      .toLowerCase();
     const normalizedPassword = String(password ?? "");
+    const normalizedName = typeof name === "string" ? name.trim() : "";
+    const finalName = normalizedName ? normalizedName : null;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (typeof name !== "undefined" && typeof name !== "string") {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Name must be a string",
+      });
+    }
+
+    if (normalizedName.length > 100) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Name must be at most 100 characters",
+      });
+    }
     if (!normalizedEmail || !normalizedPassword) {
       throw createError({
         statusCode: 400,
@@ -45,7 +63,7 @@ export default defineEventHandler(async (event) => {
     const passwordHash = await bcrypt.hash(normalizedPassword, 10);
 
     const user = await prisma.authUser.create({
-      data: { email: normalizedEmail, passwordHash, name },
+      data: { email: normalizedEmail, passwordHash, name: finalName },
     });
 
     return {
@@ -55,10 +73,19 @@ export default defineEventHandler(async (event) => {
         email: user.email,
         name: user.name,
         role: user.role,
+        active: user.active,
       },
     };
   } catch (err) {
-    console.error("Register error:", err);
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      throw createError({
+        statusCode: 409,
+        statusMessage: "User already exists",
+      });
+    }
 
     if (err && typeof err === "object" && "statusCode" in err) {
       throw err;

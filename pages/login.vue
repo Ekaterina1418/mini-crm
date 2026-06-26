@@ -1,11 +1,21 @@
 <template>
   <div class="page">
   <form @submit.prevent="onLogin" class="form">
-    <input v-model="email" class="form__input" placeholder="Email" />
-    <input v-model="password" type="password" class="form__input" placeholder="Пароль" />
-     <Button label="Войти" severity="primary" size="sm" type="submit"/>
+    <div class="form__header">
+      <p>Mini CRM</p>
+      <h1>Вход</h1>
+    </div>
+    <label class="form__field">
+      <span>Email</span>
+      <input v-model="email" class="form__input" placeholder="name@example.com" />
+    </label>
+    <label class="form__field">
+      <span>Пароль</span>
+      <input v-model="password" type="password" class="form__input" placeholder="Введите пароль" />
+    </label>
+     <AppButton label="Войти" severity="primary" size="md" type="submit"/>
       <p class="form__sub">
-        Уже есть аккаунт?
+        Нет аккаунта?
         <NuxtLink :to="{ path: '/register' }" class="form__link"> Зарегистрироваться </NuxtLink>
       </p>
   </form>
@@ -13,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-import Button from '~/shared/ui/Button/Button.vue';
 import { useRouter } from "vue-router";
 import { useAppToast } from '~/shared/lib/useToast';
 import { useAuthStore} from '~/stores/userStore';
@@ -52,35 +61,62 @@ const onLogin = async () => {
 
 .form {
   width: 100%;
-  max-width: 540px;
+  max-width: 420px;
   padding: 28px;
-  border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  gap: 20px;
+  gap: 16px;
+}
+.form__header {
+  margin-bottom: 4px;
+}
+.form__header p {
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.form__header h1 {
+  margin-top: 4px;
+  font-size: 30px;
+  line-height: 1.1;
+}
+.form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  font-weight: 600;
 }
 .form__input {
-  width: 80%;
-  padding: 5px;
-  border: 1px solid #c0c0c0;
-  border-radius: 6px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   outline: none;
 }
+.form__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
 .form__input::placeholder {
-  font-size: 15px;
-  color: #000;
+  color: #94a3b8;
 }
 .form__sub {
   margin: 6px 0 0;
   text-align: center;
   font-size: 14px;
-  color: #444;
+  color: var(--color-text-muted);
 }
 .form__link {
-  color: #1d4ed8;
+  color: var(--color-primary);
   font-weight: 600;
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div class="field">
     <input type="checkbox" v-model="modelValue" id="activeCheckbox" />
-    <label for="activeCheckbox">{{
-      modelValue ? "Активный" : "Неактивный"
-    }}</label>
+    <label for="activeCheckbox">
+      {{ modelValue ? "Активный" : "Неактивный" }}
+    </label>
   </div>
 </template>
 

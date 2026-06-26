@@ -1,8 +1,10 @@
-import formidable, { Files, File } from "formidable";
+import formidable, { type Files } from "formidable";
 import path from "path";
 import fs from "fs";
+import { requireAuth } from "~/server/utils/requireAuth";
 
 export default defineEventHandler(async (event) => {
+  await requireAuth(event);
   const uploadDir = path.join(process.cwd(), "public/uploads");
 
   if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });

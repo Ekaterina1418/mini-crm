@@ -70,7 +70,13 @@ const onClear = () => {
 .avatar-uploader {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  min-height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
 }
 
 .avatar-preview input {
@@ -79,19 +85,27 @@ const onClear = () => {
 
 .avatar-preview span {
   display: block;
-  max-width: 100px;
+  max-width: 220px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--color-text);
+  cursor: pointer;
 }
 
 .clear-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  padding: 0;
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+}
+
+.clear-btn:hover {
+  background: var(--color-surface-muted);
+  color: var(--color-danger);
 }
 </style>

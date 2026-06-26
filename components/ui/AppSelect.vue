@@ -1,39 +1,38 @@
 <template>
-	<div class="field">
-      <label>{{ label }}</label>
-      <div
-        class="select"
-        :class="{ active: isSelectOpen }"
-        @click="toggleSelect"
-      >
-        <div class="select__default">
-          {{ modelValue || "Выберите роль" }}
-        </div>
-        <div class="select__content">
-          <label
-            v-for="role in values"
-            :key="role"
-            @click.stop="selectOption(role)"
-          >
-            {{ role }}
-          </label>
-        </div>
-	  </div>
-	  </div>
-	  </template>
+  <div class="field">
+    <label>{{ label }}</label>
+    <div class="select" :class="{ active: isSelectOpen }" @click="toggleSelect">
+      <div class="select__default">
+        {{ modelValue || "Выберите значение" }}
+      </div>
+      <div class="select__content">
+        <label
+          v-for="role in values"
+          :key="role"
+          @click.stop="selectOption(role)"
+        >
+          {{ role }}
+        </label>
+      </div>
+    </div>
+  </div>
+</template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 
-const isSelectOpen = ref(false);
 defineProps<{
-	label: string
-    values : string[]
-}>()
-const modelValue = defineModel<string | null>()
+  label: string;
+  values: string[];
+}>();
+
+const modelValue = defineModel<string | null>();
+const isSelectOpen = ref(false);
+
 const toggleSelect = () => {
   isSelectOpen.value = !isSelectOpen.value;
 };
+
 const selectOption = (role: string) => {
   modelValue.value = role;
   isSelectOpen.value = false;
@@ -58,13 +57,14 @@ const selectOption = (role: string) => {
   width: 100%;
   cursor: pointer;
 }
+
 .select__default {
+  position: relative;
   min-height: 40px;
-  padding: 8px 36px 8px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+  padding: 8px 36px 8px 12px;
   background-color: var(--color-surface);
-  position: relative;
   color: var(--color-text);
   transition:
     border-color 0.15s ease,
@@ -81,39 +81,38 @@ const selectOption = (role: string) => {
   position: absolute;
   right: 10px;
   top: 50%;
-  transform: translateY(-50%) rotate(45deg);
   border: solid var(--color-text-muted);
   border-width: 0 2px 2px 0;
   padding: 3px;
   pointer-events: none;
+  transform: translateY(-50%) rotate(45deg);
   transition: transform 0.3s ease;
 }
+
 .select.active .select__default::after {
   transform: translateY(-50%) rotate(-135deg);
 }
+
 .select__content {
   position: absolute;
-  top: calc(100% + 5px);
   left: 0;
+  top: calc(100% + 5px);
+  z-index: 10;
   width: 100%;
+  max-height: 150px;
+  overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background-color: var(--color-surface);
-  max-height: 150px;
-  overflow-y: auto;
   box-shadow: var(--shadow-md);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s ease;
-  z-index: 10;
 }
+
 .select.active .select__content {
   opacity: 1;
   visibility: visible;
-}
-
-.select__content input {
-  display: none;
 }
 
 .select__content label {

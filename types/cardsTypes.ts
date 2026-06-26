@@ -32,8 +32,8 @@ export interface AuthUser {
 
 export interface AuthSuccess {
   success: true;
-  token: string;         
-  user: AuthUser;
+  token?: string;
+  user?: AuthUser | null;
 }
 export interface AuthError {
   success: false;

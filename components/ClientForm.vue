@@ -1,29 +1,43 @@
 <template>
   <form @submit.prevent="onSave" :class="formClass">
-    <Input label="Имя" v-model="modelValueRef.name" type="text" />
-    <Input label="Почта" v-model="modelValueRef.email" type="text" />
-    <Input label="Номер телефона" v-model="modelValueRef.phone" type="text" />
-    <AvatarUploader v-model="avatarFile" v-model:avatar-url="avatarUrlModel"/>
-    <Select label="Роль" v-model="modelValueRef.role" :values="ROLES" />
-    <Select
+    <div class="form-heading">
+      <h2>{{ localForm.id ? "Редактировать контакт" : "Новый контакт" }}</h2>
+      <p>Заполните основные данные и сохраните карточку.</p>
+    </div>
+    <AppInput label="Имя" v-model="localForm.name" type="text" />
+    <AppInput label="Почта" v-model="localForm.email" type="text" />
+    <AppInput label="Номер телефона" v-model="localForm.phone" type="text" />
+    <AvatarUploader v-model="avatarFile" v-model:avatar-url="avatarUrlModel" />
+    <AppSelect label="Роль" v-model="localForm.role" :values="ROLES" />
+    <AppSelect
       label="Отдел"
-      v-model="modelValueRef.department"
+      v-model="localForm.department"
       :values="DEPARTAMENT"
     />
-    <Checkbox  v-model="modelValueRef.active"/>
+    <AppCheckbox v-model="localForm.active" />
     <div class="wrapper-btn">
-      <Button label="Сохранить" :disabled="!isDirty" severity="primary" size="sm" type="submit"/>
-      <Button v-if="modelValueRef.id" label="Удалить"  @click="$emit('delete')" severity="danger" size="sm" type="button"/>
+      <AppButton
+        label="Сохранить"
+        :disabled="!isDirty"
+        severity="primary"
+        size="sm"
+        type="submit"
+      />
+      <AppButton
+        v-if="localForm.id"
+        label="Удалить"
+        @click="$emit('delete')"
+        severity="danger"
+        size="sm"
+        type="button"
+      />
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { uploadAvatar } from '~/api/auth';
-import Button from '~/shared/ui/Button/Button.vue';
-import Checkbox from "~/shared/ui/Checkbox/Checkbox.vue";
-import Input from "~/shared/ui/Input/Input.vue";
-import Select from "~/shared/ui/Select/Select.vue";
+import { cloneDeep } from "lodash";
+import { uploadAvatar } from "~/api/auth";
 import type { FormClient } from "~/types/cardsTypes";
 const props = defineProps<{
   modelValue: FormClient;
@@ -34,28 +48,34 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "update:modelValue", val: FormClient): void;
   (e: "save", val: FormClient): void;
+  (e: "avatarChanged"): void
   (e: "delete"): void;
 }>();
 
-const { modelValue } = toRefs(props);
-const modelValueRef = modelValue;
+const localForm = ref<FormClient>(cloneDeep(props.modelValue));
+
 const avatarFile = ref<File | null>(null);
 const avatarUrlModel = computed<string | null>({
-  get: () => modelValueRef.value.avatarUrl ?? null,
+  get: () => localForm.value.avatarUrl ?? null,
   set: (val) => {
-    modelValueRef.value.avatarUrl = val;
+    localForm.value.avatarUrl = val;
   },
 });
-
 watch(
-  modelValueRef,
+  () => props.modelValue.id,
+  () => {
+    localForm.value = cloneDeep(props.modelValue);
+  },
+  {  immediate: true },
+);
+watch(
+  localForm,
   (newVal) => {
     emit("update:modelValue", newVal);
   },
-  { deep: true }
+  { deep: true },
 );
-
-
+watch(avatarFile, () => emit("avatarChanged"))
 const onSave = async () => {
   let avatarUrl = avatarUrlModel.value ?? null;
 
@@ -64,7 +84,7 @@ const onSave = async () => {
   }
 
   emit("save", {
-    ...modelValueRef.value,
+    ...localForm.value,
     avatarUrl,
   });
 };
@@ -73,28 +93,34 @@ const onSave = async () => {
 <style scoped>
 .wrapper-btn {
   display: flex;
-  justify-content: center;
-  gap: 20px;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
 }
-.save-btn {
-  border-radius: 6px;
-  padding: 6px 10px;
-  max-width: 100px;
-  margin: 20px 0 0 0;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+
+.form-heading {
+  margin-bottom: 4px;
 }
-.success {
-  background-color: rgb(21, 140, 225);
+
+.form-heading h2 {
+  color: var(--color-text);
+  font-size: 22px;
+  line-height: 1.2;
 }
-.success:hover {
-  background-color: rgb(17, 21, 218);
+
+.form-heading p {
+  margin-top: 4px;
+  color: var(--color-text-muted);
+  font-size: 14px;
 }
-.danger {
-  background-color: #ed4747;
-}
-.danger:hover {
-  background-color: #550303fa;
+
+@media (max-width: 520px) {
+  .wrapper-btn {
+    flex-direction: column;
+  }
+
+  .wrapper-btn :deep(.app-btn) {
+    width: 100%;
+  }
 }
 </style>

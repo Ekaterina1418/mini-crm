@@ -1,44 +1,71 @@
+.app-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 40px;
+	border: 1px solid transparent;
+	border-radius: var(--radius-md);
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		border-color 0.15s ease,
+		color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
 .app-btn--primary {
-	background-color: #1d4ed8;
+	background-color: var(--color-primary);
 	color: white;
+}
+
+.app-btn--primary:hover {
+	background-color: var(--color-primary-hover);
+}
+
+.app-btn--secondary {
+	border-color: var(--color-border);
+	background-color: var(--color-surface);
+	color: var(--color-text);
+}
+
+.app-btn--secondary:hover {
+	border-color: var(--color-border-strong);
+	background-color: var(--color-surface-muted);
 }
 
 .app-btn--danger {
-	background-color: #dc2626;
+	background-color: var(--color-danger);
 	color: white;
 }
 
-.app-btn--sm {
-	padding: 0.25rem 0.5rem;
-	font-size: 0.875rem;
+.app-btn--danger:hover {
+	background-color: var(--color-danger-hover);
 }
 
-.app-btn--md {
-	padding: 0.5rem 1rem;
-	font-size: 1rem;
-}
-
-.app-btn--lg {
-	padding: 0.75rem 1.5rem;
-	font-size: 1.125rem;
-}
 .app-btn--sm {
-	padding: 6px 10px;
+	min-height: 36px;
+	padding: 8px 12px;
 	font-size: 14px;
-	border-radius: 6px;
+	border-radius: var(--radius-sm);
 }
 
 .app-btn--md {
-	padding: 8px 14px;
+	min-height: 40px;
+	padding: 10px 16px;
 	font-size: 16px;
-	border-radius: 8px;
+	border-radius: var(--radius-md);
 }
 
 .app-btn--lg {
-	padding: 10px 18px;
+	min-height: 44px;
+	padding: 12px 18px;
 	font-size: 18px;
-	border-radius: 10px;
+	border-radius: var(--radius-md);
 }
+
 .app-btn--disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
@@ -52,5 +79,5 @@
 }
 .app-btn:focus {
 	outline: 0;
-	box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.18);
+	box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18);
 }
