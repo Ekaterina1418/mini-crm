@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-const store = useCardStore();
+const store = useContactsStore();
 
 const onKeydown = (e: KeyboardEvent) => {
   if (e.key === "Escape" || e.key === "Enter") {

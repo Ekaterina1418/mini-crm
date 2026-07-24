@@ -1,44 +1,46 @@
 <template>
-  <article class="item" :class="{ inactive: !user.active }" @click="select">
+  <article class="item" :class="{ inactive: !contact.active }" @click="select">
     <div class="item__header">
-      <img v-if="user.avatarUrl" :src="user.avatarUrl" :alt="user.name" />
-      <img v-else src="../assets//image/avatar.png" alt="Фото отсутствует" />
-      <span class="status" :class="{ 'status--inactive': !user.active }">
-        {{ user.active ? "Активен" : "Неактивен" }}
+      <img v-if="contact.avatarUrl" :src="contact.avatarUrl" :alt="contact.name" />
+      <img v-else src="../assets/image/avatar.png" alt="Фото отсутствует" />
+      <span class="status" :class="{ 'status--inactive': !contact.active }">
+        {{ contact.active ? "Активен" : "Неактивен" }}
       </span>
     </div>
     <div class="item__body">
-      <h2>{{ user.name }}</h2>
-      <p class="email">{{ user.email }}</p>
+      <h2>{{ contact.name }}</h2>
+      <p class="email">{{ contact.email }}</p>
       <dl>
         <div>
           <dt>Телефон</dt>
-          <dd>{{ user.phone || "Не указан" }}</dd>
+          <dd>{{ contact.phone || "Не указан" }}</dd>
         </div>
         <div>
           <dt>Роль</dt>
-          <dd>{{ user.role || "Не указана" }}</dd>
+          <dd>{{ contact.role || "Не указана" }}</dd>
         </div>
         <div>
           <dt>Отдел</dt>
-          <dd>{{ user.department || "Не указан" }}</dd>
+          <dd>{{ contact.department || "Не указан" }}</dd>
         </div>
       </dl>
     </div>
   </article>
 </template>
+
 <script setup lang="ts">
-import type { Card } from "~/types/cardsTypes";
+import type { Contact } from "~/types/contactTypes";
 
 const props = defineProps<{
-  user: Card;
+  contact: Contact;
 }>();
+
 const emit = defineEmits<{
   (e: "select", id: string): void;
 }>();
 
 const select = () => {
-  emit("select", props.user.id);
+  emit("select", props.contact.id);
 };
 </script>
 

@@ -4,10 +4,10 @@ import prisma from "~/server/db/prisma";
 import { requireAuth } from "~/server/utils/requireAuth";
 
 export default defineEventHandler(async (event) => {
-  await requireAuth(event);
+  const user = await requireAuth(event);
   const body = await readBody(event);
 
-  const created = await prisma.user.create({
+  const created = await prisma.contact.create({
     data: {
       id: nanoid(),
       name: body.name,
@@ -17,9 +17,10 @@ export default defineEventHandler(async (event) => {
       department: body.department ?? null,
       active: body.active ?? true,
       avatarUrl: body.avatarUrl ?? null,
+      ownerId: user.id,
     },
   });
 
   event.node.res.statusCode = 201;
-  return { success: true, user: created };
+  return { success: true, contact: created };
 });

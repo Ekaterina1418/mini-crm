@@ -1,51 +1,63 @@
 <template>
   <div class="list">
-    <section class="list-users">
+    <section class="list-contacts">
       <div class="section-heading">
         <h3 class="title">Активные контакты</h3>
-        <span>{{ activeUsers.length }}</span>
+        <span>{{ activeContacts.length }}</span>
       </div>
-      <div v-if="activeUsers.length" class="group">
-        <UserItem
-          v-for="item in activeUsers"
+      <div v-if="activeContacts.length" class="group">
+        <ContactItem
+          v-for="item in activeContacts"
           :key="item.id"
-          :user="item"
-          @select="onSelectUser"
+          :contact="item"
+          @select="onSelectContact"
         />
       </div>
-      <div v-else class="empty"><h3>Активных контактов пока нет</h3></div>
+      <div v-else class="empty">
+        <h3>Активных контактов пока нет</h3>
+      </div>
     </section>
-    <section class="list-users">
+    <section class="list-contacts">
       <div class="section-heading">
         <h3 class="title">Неактивные контакты</h3>
-        <span>{{ inactiveUsers.length }}</span>
+        <span>{{ inactiveContacts.length }}</span>
       </div>
-      <div v-if="inactiveUsers.length" class="group">
-        <UserItem
-          v-for="item in inactiveUsers"
+      <div v-if="inactiveContacts.length" class="group">
+        <ContactItem
+          v-for="item in inactiveContacts"
           :key="item.id"
-          :user="item"
-          @select="onSelectUser"
+          :contact="item"
+          @select="onSelectContact"
         />
       </div>
-      <div v-else class="empty"><h3>Неактивных контактов пока нет</h3></div>
+      <div v-else class="empty">
+        <h3>Неактивных контактов пока нет</h3>
+      </div>
     </section>
   </div>
 </template>
+
 <script setup lang="ts">
-import type { Card } from "~/types/cardsTypes";
+import type { Contact } from "~/types/contactTypes";
+
 const props = defineProps<{
-  users: Card[];
+  contacts: Contact[];
 }>();
+
 const emit = defineEmits<{
   (e: "select", id: string): void;
 }>();
-const onSelectUser = (id: string) => {
+
+const onSelectContact = (id: string) => {
   emit("select", id);
 };
-const activeUsers = computed(() => props.users?.filter(u => u.active) || []);
-const inactiveUsers = computed(() => props.users?.filter(u => !u.active) || []);
 
+const activeContacts = computed(() =>
+  props.contacts?.filter((contact) => contact.active) || [],
+);
+const inactiveContacts = computed(() =>
+  props.contacts?.filter((contact) => !contact.active) || [],
+);
 </script>
 
 <style scoped>
@@ -55,16 +67,19 @@ const inactiveUsers = computed(() => props.users?.filter(u => !u.active) || []);
   gap: 28px;
   height: 100%;
 }
+
 .group {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
 }
-.list-users {
+
+.list-contacts {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -73,11 +88,13 @@ const inactiveUsers = computed(() => props.users?.filter(u => !u.active) || []);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 10px;
 }
+
 .title {
   color: var(--color-text);
   font-size: 20px;
   font-weight: 700;
 }
+
 .section-heading span {
   border-radius: 999px;
   padding: 3px 9px;
@@ -86,6 +103,7 @@ const inactiveUsers = computed(() => props.users?.filter(u => !u.active) || []);
   font-size: 13px;
   font-weight: 700;
 }
+
 .empty {
   display: flex;
   min-height: 140px;
@@ -97,6 +115,7 @@ const inactiveUsers = computed(() => props.users?.filter(u => !u.active) || []);
   color: var(--color-text-muted);
   text-align: center;
 }
+
 .empty h3 {
   font-size: 15px;
   font-weight: 600;

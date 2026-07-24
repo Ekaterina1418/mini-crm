@@ -1,10 +1,15 @@
-export const INITIAL_FORM = {
-  name: "",     
+import type { ContactForm } from "~/types/contactTypes";
+
+export const INITIAL_FORM: ContactForm = {
+  name: "",
   email: "",
-  role: "",            
-  phone: "",          
-  department: "",   
-  active: true        
+  avatarUrl: null,
+  avatarFile: null,
+  role: "",
+  phone: "",
+  department: "",
+  active: true,
 };
-export const DEPARTAMENT = ["Продажи", "Маркетинг", "Разработка", "Поддержка"];
+
+export const DEPARTMENT = ["Продажи", "Маркетинг", "Разработка", "Поддержка"];
 export const ROLES = ["Admin", "User", "Manager"];

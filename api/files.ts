@@ -2,7 +2,7 @@ export const uploadAvatar = async (file: File) => {
   const formData = new FormData();
   formData.append("avatar", file);
 
-  const res = await fetch("/api/users/upload-avatar", {
+  const res = await fetch("/api/contacts/upload-avatar", {
     method: "POST",
     body: formData,
   });

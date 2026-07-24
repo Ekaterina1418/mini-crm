@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { AuthResponse, AuthUser } from "~/types/cardsTypes";
+import type { AuthResponse, AuthUser } from "~/types/contactTypes";
 import { useFetch } from "#imports";
 
 export const useAuthStore = defineStore("auth", () => {

@@ -16,18 +16,17 @@
         <h2>База контактов</h2>
         <p>Создавайте карточки, обновляйте данные и отслеживайте активность.</p>
       </div>
-      <AddForm @click="store.openModal" />
+      <AddForm @click="store.openCreateModal" />
     </div>
 
-    <UsersList :users="store.cards" @select="selectUser" />
+    <ContactsList :contacts="store.contacts" @select="openEditModal" />
     <ModalForm v-if="store.isVisible">
       <ClientForm
         :is-dirty="isDirty"
         form-class="form-modal"
         v-model="formClient"
         @save="save"
-        @delete="store.deleteUser"
-        @avatar-changed="isAvatarDirty = true"
+        @delete="store.deleteContact"
       />
     </ModalForm>
   </main>
@@ -35,37 +34,35 @@
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
 import { isEqual, cloneDeep } from "lodash";
-import { useCardStore } from "@/stores/cardsStore";
-import { useAuthStore} from '~/stores/userStore';
+import { useContactsStore } from "@/stores/contactsStore";
+import { useAuthStore } from "~/stores/userStore";
 import { INITIAL_FORM } from "#imports";
-import type { FormClient } from "~/types/cardsTypes";
+import type { ContactForm } from "~/types/contactTypes";
 
-const store = useCardStore();
+const store = useContactsStore();
 const userStore = useAuthStore();
 const router = useRouter();
-const formClient = ref<FormClient>(INITIAL_FORM);
-const pristine = ref<FormClient>(cloneDeep(INITIAL_FORM));
-const isAvatarDirty = ref<boolean>(false)
+const formClient = ref<ContactForm>(cloneDeep(INITIAL_FORM));
+const pristine = ref<ContactForm>(cloneDeep(INITIAL_FORM));
 const reset = () => {
-  Object.assign(formClient.value, INITIAL_FORM);
+  formClient.value = cloneDeep(INITIAL_FORM);
 };
 const isDirty = computed(() => {
-  return !isEqual(formClient.value, pristine.value) || isAvatarDirty.value;
+  return !isEqual(formClient.value, pristine.value);
 });
 
-const save = (form: FormClient) => {
+const save = (form: ContactForm) => {
   if (form.id != null) {
-    store.updateUser(form);
+    store.updateContact(form);
   } else {
-    store.newUser(form);
+    store.createContact(form);
   }
   reset();
-  isAvatarDirty.value = false
   store.close();
 };
 
-const selectUser = (id: string) => {
-  store.selectUser(id);
+const openEditModal = (id: string) => {
+  store.openEditModal(id);
 };
 
 const logout = async () => {
@@ -73,28 +70,28 @@ const logout = async () => {
   await router.push("/login");
 };
 
-onMounted(async() => {
-  store.fetchCards();
+onMounted(async () => {
+  store.fetchContacts();
   if (!userStore.isLoggedIn) {
-    await userStore.me(); 
+    await userStore.me();
   }
-  
 });
 
 watch(
-  () => store.selectedUser,
-  (user) => {
-    if (user) {
-      formClient.value = cloneDeep(user);
+  () => store.selectedContact,
+  (contact) => {
+    if (contact) {
+      formClient.value = {
+        ...cloneDeep(contact),
+        avatarFile: null,
+      };
       pristine.value = cloneDeep(formClient.value);
-      isAvatarDirty.value = false
     } else {
       formClient.value = cloneDeep(INITIAL_FORM);
       pristine.value = cloneDeep(formClient.value);
-      isAvatarDirty.value = false
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

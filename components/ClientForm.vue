@@ -5,14 +5,14 @@
       <p>Заполните основные данные и сохраните карточку.</p>
     </div>
     <AppInput label="Имя" v-model="localForm.name" type="text" />
-    <AppInput label="Почта" v-model="localForm.email" type="text" />
-    <AppInput label="Номер телефона" v-model="localForm.phone" type="text" />
-    <AvatarUploader v-model="avatarFile" v-model:avatar-url="avatarUrlModel" />
+    <AppInput label="Почта" v-model="localForm.email" type="email" />
+    <AppInput label="Номер телефона" v-model="localForm.phone" type="tel" />
+    <AvatarUploader v-model="localForm.avatarFile" v-model:avatar-url="localForm.avatarUrl" />
     <AppSelect label="Роль" v-model="localForm.role" :values="ROLES" />
     <AppSelect
       label="Отдел"
       v-model="localForm.department"
-      :values="DEPARTAMENT"
+      :values="DEPARTMENT"
     />
     <AppCheckbox v-model="localForm.active" />
     <div class="wrapper-btn">
@@ -37,30 +37,22 @@
 
 <script setup lang="ts">
 import { cloneDeep } from "lodash";
-import { uploadAvatar } from "~/api/auth";
-import type { FormClient } from "~/types/cardsTypes";
+import { uploadAvatar } from "~/api/files";
+import type { ContactForm } from "~/types/contactTypes";
+
 const props = defineProps<{
-  modelValue: FormClient;
+  modelValue: ContactForm;
   formClass: string;
   isDirty: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: FormClient): void;
-  (e: "save", val: FormClient): void;
-  (e: "avatarChanged"): void
+  (e: "update:modelValue", val: ContactForm): void;
+  (e: "save", val: ContactForm): void;
   (e: "delete"): void;
 }>();
 
-const localForm = ref<FormClient>(cloneDeep(props.modelValue));
-
-const avatarFile = ref<File | null>(null);
-const avatarUrlModel = computed<string | null>({
-  get: () => localForm.value.avatarUrl ?? null,
-  set: (val) => {
-    localForm.value.avatarUrl = val;
-  },
-});
+const localForm = ref<ContactForm>(cloneDeep(props.modelValue));
 watch(
   () => props.modelValue.id,
   () => {
@@ -75,17 +67,17 @@ watch(
   },
   { deep: true },
 );
-watch(avatarFile, () => emit("avatarChanged"))
 const onSave = async () => {
-  let avatarUrl = avatarUrlModel.value ?? null;
+  let avatarUrl = localForm.value.avatarUrl ?? null;
 
-  if (avatarFile.value) {
-    avatarUrl = await uploadAvatar(avatarFile.value);
+  if (localForm.value.avatarFile) {
+    avatarUrl = await uploadAvatar(localForm.value.avatarFile);
   }
 
   emit("save", {
     ...localForm.value,
     avatarUrl,
+    avatarFile: null,
   });
 };
 </script>

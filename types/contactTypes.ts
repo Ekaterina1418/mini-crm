@@ -1,6 +1,4 @@
-
-
-export interface Card {
+export interface Contact {
   id: string;
   name: string;
   email: string;
@@ -11,11 +9,12 @@ export interface Card {
   active: boolean;
 }
 
-export interface FormClient {
+export interface ContactForm {
   id?: string;
   name: string;
   email: string;
   avatarUrl?: string | null;
+  avatarFile: File | null;
   role: string | null;
   phone: string | null;
   department: string | null;
@@ -53,4 +52,4 @@ export const config = {
   api: {
     bodyParser: false,
   }
-}
+};
