@@ -36,37 +36,32 @@
 </template>
 
 <script setup lang="ts">
-import { cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import { uploadAvatar } from "~/api/files";
 import type { ContactForm } from "~/types/contactTypes";
 
 const props = defineProps<{
-  modelValue: ContactForm;
+  contact: ContactForm;
   formClass: string;
-  isDirty: boolean;
 }>();
 
 const emit = defineEmits<{
-  (e: "update:modelValue", val: ContactForm): void;
   (e: "save", val: ContactForm): void;
   (e: "delete"): void;
 }>();
 
-const localForm = ref<ContactForm>(cloneDeep(props.modelValue));
-watch(
-  () => props.modelValue.id,
-  () => {
-    localForm.value = cloneDeep(props.modelValue);
-  },
-  {  immediate: true },
-);
-watch(
-  localForm,
-  (newVal) => {
-    emit("update:modelValue", newVal);
-  },
-  { deep: true },
-);
+
+const localForm = ref<ContactForm>(cloneDeep(props.contact))
+const initialForm = ref<ContactForm>(cloneDeep(props.contact))
+
+  const isDirty = computed(() => {
+    return !isEqual(localForm.value, initialForm.value);
+  })
+
+watch(()=> localForm.value,
+(newVal) => {
+  localForm.value = cloneDeep(newVal)
+})
 const onSave = async () => {
   let avatarUrl = localForm.value.avatarUrl ?? null;
 

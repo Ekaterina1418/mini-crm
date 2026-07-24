@@ -22,9 +22,8 @@
     <ContactsList :contacts="store.contacts" @select="openEditModal" />
     <ModalForm v-if="store.isVisible">
       <ClientForm
-        :is-dirty="isDirty"
         form-class="form-modal"
-        v-model="formClient"
+        :contact="formClient"
         @save="save"
         @delete="store.deleteContact"
       />
@@ -33,7 +32,7 @@
 </template>
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
-import { isEqual, cloneDeep } from "lodash";
+import { cloneDeep } from "lodash";
 import { useContactsStore } from "@/stores/contactsStore";
 import { useAuthStore } from "~/stores/userStore";
 import { INITIAL_FORM } from "#imports";
@@ -43,13 +42,9 @@ const store = useContactsStore();
 const userStore = useAuthStore();
 const router = useRouter();
 const formClient = ref<ContactForm>(cloneDeep(INITIAL_FORM));
-const pristine = ref<ContactForm>(cloneDeep(INITIAL_FORM));
 const reset = () => {
   formClient.value = cloneDeep(INITIAL_FORM);
 };
-const isDirty = computed(() => {
-  return !isEqual(formClient.value, pristine.value);
-});
 
 const save = (form: ContactForm) => {
   if (form.id != null) {
@@ -80,16 +75,12 @@ onMounted(async () => {
 watch(
   () => store.selectedContact,
   (contact) => {
-    if (contact) {
-      formClient.value = {
-        ...cloneDeep(contact),
-        avatarFile: null,
-      };
-      pristine.value = cloneDeep(formClient.value);
-    } else {
-      formClient.value = cloneDeep(INITIAL_FORM);
-      pristine.value = cloneDeep(formClient.value);
-    }
+    formClient.value = contact
+      ? {
+          ...cloneDeep(contact),
+          avatarFile: null,
+        }
+      : cloneDeep(INITIAL_FORM);
   },
   { immediate: true },
 );
