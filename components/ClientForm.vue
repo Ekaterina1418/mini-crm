@@ -4,45 +4,38 @@
       <h2>{{ localForm.id ? "Редактировать контакт" : "Новый контакт" }}</h2>
       <p>Заполните основные данные и сохраните карточку.</p>
     </div>
-    <AppInput label="Имя" v-model="localForm.name" type="text" />
-    <AppInput label="Почта" v-model="localForm.email" type="email" />
-    <AppInput label="Номер телефона" v-model="localForm.phone" type="tel" />
+    <AppInput label="Имя" v-model="localForm.name" type="text" :error="errors.name" />
+    <AppInput label="Почта" v-model="localForm.email" type="email" :error="errors.email" />
+    <AppInput label="Номер телефона" v-model="localForm.phone" type="tel" :error="errors.phone" />
     <AvatarUploader v-model="localForm.avatarFile" v-model:avatar-url="localForm.avatarUrl" />
     <AppSelect label="Роль" v-model="localForm.role" :values="ROLES" />
-    <AppSelect
-      label="Отдел"
-      v-model="localForm.department"
-      :values="DEPARTMENT"
-    />
+    <AppSelect label="Отдел" v-model="localForm.department" :values="DEPARTMENT" />
     <AppCheckbox v-model="localForm.active" />
+    <p v-if="submitError" class="form-error" role="alert">
+      {{ submitError }}
+    </p>
     <div class="wrapper-btn">
-      <AppButton
-        label="Сохранить"
-        :disabled="!isDirty"
-        severity="primary"
-        size="sm"
-        type="submit"
-      />
-      <AppButton
-        v-if="localForm.id"
-        label="Удалить"
-        @click="$emit('delete')"
-        severity="danger"
-        size="sm"
-        type="button"
-      />
+      <AppButton :label="isSaving ? 'Сохранение...' : 'Сохранить'" :disabled="!isDirty || isSaving" severity="primary"
+        size="sm" type="submit" />
+      <AppButton v-if="localForm.id" label="Удалить" @click="$emit('delete')" severity="danger" size="sm"
+        type="button" />
     </div>
   </form>
 </template>
 
 <script setup lang="ts">
-import { cloneDeep, isEqual } from "lodash";
-import { uploadAvatar } from "~/api/files";
+import { cloneDeep, isEqual, pick } from "lodash";
 import type { ContactForm } from "~/types/contactTypes";
+import {
+  contactInputSchema,
+  formatContactValidationError,
+} from "~/shared/validation/contacts";
 
 const props = defineProps<{
   contact: ContactForm;
   formClass: string;
+  isSaving: boolean;
+  submitError: string;
 }>();
 
 const emit = defineEmits<{
@@ -50,29 +43,49 @@ const emit = defineEmits<{
   (e: "delete"): void;
 }>();
 
+const localForm = ref<ContactForm>(cloneDeep(props.contact));
+const initialForm = ref<ContactForm>(cloneDeep(props.contact));
+const errors = ref<Record<string, string | undefined>>({});
 
-const localForm = ref<ContactForm>(cloneDeep(props.contact))
-const initialForm = ref<ContactForm>(cloneDeep(props.contact))
+const isDirty = computed(() => {
+  return !isEqual(localForm.value, initialForm.value);
+});
 
-  const isDirty = computed(() => {
-    return !isEqual(localForm.value, initialForm.value);
-  })
+watch(
+  () => props.contact,
+  (newVal) => {
+    localForm.value = cloneDeep(newVal);
+    initialForm.value = cloneDeep(newVal);
+    errors.value = {};
+  },
+  { immediate: true },
+);
 
-watch(()=> localForm.value,
-(newVal) => {
-  localForm.value = cloneDeep(newVal)
-})
-const onSave = async () => {
-  let avatarUrl = localForm.value.avatarUrl ?? null;
+const onSave = () => {
+  if (props.isSaving) return;
 
-  if (localForm.value.avatarFile) {
-    avatarUrl = await uploadAvatar(localForm.value.avatarFile);
+  const payload = pick(localForm.value, [
+    "name",
+    "email",
+    "phone",
+    "role",
+    "department",
+    "active",
+    "avatarUrl",
+  ])
+  const { id, avatarFile } = localForm.value;
+  const result = contactInputSchema.safeParse(payload);
+
+  if (!result.success) {
+    errors.value = formatContactValidationError(result.error);
+    return;
   }
 
+  errors.value = {};
   emit("save", {
-    ...localForm.value,
-    avatarUrl,
-    avatarFile: null,
+    ...result.data,
+    ...(id ? { id } : {}),
+    avatarFile,
   });
 };
 </script>
@@ -98,6 +111,12 @@ const onSave = async () => {
 .form-heading p {
   margin-top: 4px;
   color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.form-error {
+  margin: 0;
+  color: var(--color-danger, #dc2626);
   font-size: 14px;
 }
 

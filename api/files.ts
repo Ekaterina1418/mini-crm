@@ -12,4 +12,4 @@ export const uploadAvatar = async (file: File) => {
   return data.avatarUrl;
 };
 
- 
+
