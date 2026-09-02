@@ -1,4 +1,6 @@
 import { createError } from "h3";
+import { rm } from "node:fs/promises";
+import path from "node:path";
 import prisma from "~/server/db/prisma";
 import { requireAuth } from "~/server/utils/requireAuth";
 
@@ -27,6 +29,18 @@ export default defineEventHandler(async (event) => {
   await prisma.contact.delete({
     where: { id },
   });
-
+  if (existing.avatarUrl) {
+    const fileName = path.posix.basename(existing.avatarUrl);
+    if (existing.avatarUrl === `/uploads/${fileName}`) {
+      try {
+        await rm(
+          path.join(process.cwd(), "public", "uploads", fileName),
+          { force: true },
+        );
+      } catch (error) {
+        console.error("Не удалось удалить аватар контакта:", error);
+      }
+    }
+  }
   return { success: true, deletedId: id };
 });

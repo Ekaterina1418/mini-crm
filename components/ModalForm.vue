@@ -1,8 +1,19 @@
 <template>
   <teleport to="body">
-    <div v-if="store.isVisible" class="modal-overlay">
+    <div
+      v-if="store.isVisible"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Форма контакта"
+    >
       <div class="modal-wrap">
-        <button class="modal-close" type="button" @click="store.isVisible = false">
+        <button
+          class="modal-close"
+          type="button"
+          @click="closeModal"
+          :disabled="props.isLocked"
+        >
           <Icon name="tabler:x" size="22" />
         </button>
         <slot></slot>
@@ -12,19 +23,31 @@
 </template>
 
 <script setup lang="ts">
+const props = defineProps<{
+  isLocked?: boolean;
+}>();
+
 const store = useContactsStore();
 
+const closeModal = () => {
+  if (props.isLocked) return;
+  store.close();
+};
 const onKeydown = (e: KeyboardEvent) => {
-  if (e.key === "Escape" || e.key === "Enter") {
-    store.isVisible = false;
+  if (e.key === "Escape") {
+    closeModal();
   }
 };
+let previousBodyOverflow = "";
 onMounted(() => {
-  window.addEventListener("keydown", onKeydown)
-})
+  previousBodyOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+  window.addEventListener("keydown", onKeydown);
+});
 onUnmounted(() => {
-  window.removeEventListener("keydown", onKeydown)
-})
+  document.body.style.overflow = previousBodyOverflow;
+  window.removeEventListener("keydown", onKeydown);
+});
 </script>
 
 <style scoped>

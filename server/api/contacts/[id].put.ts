@@ -1,11 +1,33 @@
 import { createError, readBody } from "h3";
 import prisma from "~/server/db/prisma";
+import { rm } from "node:fs/promises";
+import path from "node:path";
 import { Prisma } from "@prisma/client";
 import { requireAuth } from "~/server/utils/requireAuth";
 import {
   contactInputSchema,
   formatContactValidationError,
 } from "~/shared/validation/contacts";
+
+
+const deleteUploadedAvatar = async (avatarUrl: string | null) => {
+  if (!avatarUrl) return
+
+  const fileName = path.posix.basename(avatarUrl)
+
+  if (avatarUrl !== `/uploads/${fileName}`) {
+    return;
+  }
+  const filePath = path.join( process.cwd(), "public", "uploads", fileName)
+
+  try {
+    await rm(filePath, {force: true})
+  } catch (error) {
+    console.error("Не удалось удалить старый аватар:", error);
+  }
+}
+
+
 
 export default defineEventHandler(async (event) => {
   const user = await requireAuth(event);
@@ -66,6 +88,12 @@ export default defineEventHandler(async (event) => {
       });
     }
     throw error;
+  }
+  if (
+    existing.avatarUrl &&
+    existing.avatarUrl !== updated.avatarUrl
+  ) {
+    await deleteUploadedAvatar(existing.avatarUrl);
   }
   return { success: true, contact: updated };
 });
