@@ -9,11 +9,6 @@ export const CONTACT_DEPARTMENTS = [
   "Поддержка",
 ] as const;
 
-const optionalText = (maxLength: number) =>
-  z
-    .union([z.string().trim().max(maxLength), z.null()])
-    .transform((value) => (value === "" ? null : value));
-
 const optionalPhone = z
   .union([z.string().trim().max(30, "Номер телефона слишком длинный"), z.null()])
   .transform((value) => (value === "" ? null : value))

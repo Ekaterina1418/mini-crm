@@ -9,7 +9,7 @@
         accept="image/*"
         name="avatar"
         @change="onFileChange"
-      />
+      >
     </label>
     <button
       type="button"

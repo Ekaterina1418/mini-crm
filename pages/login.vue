@@ -1,17 +1,17 @@
 <template>
   <div class="page">
-  <form @submit.prevent="onLogin" class="form">
+  <form class="form" @submit.prevent="onLogin">
     <div class="form__header">
       <p>Mini CRM</p>
       <h1>Вход</h1>
     </div>
     <label class="form__field">
       <span>Email</span>
-      <input v-model="email" class="form__input" placeholder="name@example.com" />
+      <input v-model="email" class="form__input" placeholder="name@example.com" >
     </label>
     <label class="form__field">
       <span>Пароль</span>
-      <input v-model="password" type="password" class="form__input" placeholder="Введите пароль" />
+      <input v-model="password" type="password" class="form__input" placeholder="Введите пароль" >
     </label>
      <AppButton label="Войти" severity="primary" size="md" type="submit"/>
       <p class="form__sub">
@@ -34,7 +34,7 @@ const { showError } = useAppToast();
 const userStore = useAuthStore();
 
 const onLogin = async () => {
-  const { data, error } = await userStore.login(email.value, password.value);
+  const { data } = await userStore.login(email.value, password.value);
   if (!data.value?.success) {
        showError('Неверный email или пароль');
 

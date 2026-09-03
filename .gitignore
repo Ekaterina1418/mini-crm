@@ -24,3 +24,11 @@ logs
 !.env.example
 
 /generated/prisma
+
+# Local database
+dev.db
+dev.db-journal
+
+# User uploads
+public/uploads/*
+!public/uploads/.gitkeep

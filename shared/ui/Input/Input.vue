@@ -2,11 +2,11 @@
   <div class="field">
     <label>{{ label }}</label>
     <input
-      :type="type"
       v-model="modelValue"
+      :type="type"
       :placeholder="placeholder"
       :disabled="disabled"
-    />
+    >
   </div>
 </template>
 <script setup lang="ts">

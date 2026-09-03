@@ -1,13 +1,13 @@
 <template>
   <div class="page">
-    <form @submit.prevent="onRegister" class="form">
+    <form class="form" @submit.prevent="onRegister">
       <div class="form__header">
         <p>Mini CRM</p>
         <h1>Регистрация</h1>
       </div>
       <label class="form__field">
         <span>Email</span>
-        <input v-model="email" class="form__input" placeholder="name@example.com" />
+        <input v-model="email" class="form__input" placeholder="name@example.com" >
       </label>
       <label class="form__field">
         <span>Пароль</span>
@@ -16,11 +16,11 @@
           type="password"
           class="form__input"
           placeholder="Минимум 8 символов"
-        />
+        >
       </label>
       <label class="form__field">
         <span>Имя</span>
-        <input v-model="name" class="form__input" placeholder="Ваше имя" />
+        <input v-model="name" class="form__input" placeholder="Ваше имя" >
       </label>
       <AppButton label="Зарегистрироваться" severity="primary" size="md" type="submit"/>
       <p class="form__sub">

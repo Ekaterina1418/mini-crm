@@ -19,7 +19,14 @@
       <AddForm @click="store.openCreateModal" />
     </div>
 
-    <ContactsList :contacts="store.contacts" @select="openEditModal" />
+    <div v-if="store.isLoading" class="list-state" role="status">
+      Загружаем контакты…
+    </div>
+    <div v-else-if="store.loadError" class="list-state list-state--error" role="alert">
+      <p>{{ store.loadError }}</p>
+      <button type="button" @click="store.fetchContacts">Попробовать снова</button>
+    </div>
+    <ContactsList v-else :contacts="store.contacts" @select="openEditModal" />
     <ModalForm v-if="store.isVisible"  :is-locked="isSaving || isDeleting || isDeleteDialogOpen">
       <ClientForm
         form-class="form-modal"
@@ -52,10 +59,12 @@ import { uploadAvatar, deleteAvatar } from "~/api/files";
 import { INITIAL_FORM } from "#imports";
 import type { ContactForm } from "~/types/contactTypes";
 import AppConfirmDialog from "~/components/ui/ConfirmDialog.vue";
+import { useAppToast } from "~/shared/lib/useToast";
 
 const store = useContactsStore();
 const userStore = useAuthStore();
 const router = useRouter();
+const { showSuccess } = useAppToast();
 const isSaving = ref(false);
 const submitError = ref("");
 const isDeleteDialogOpen = ref(false);
@@ -79,6 +88,7 @@ const confirmDelete = async () => {
   try {
     await store.deleteContact();
     isDeleteDialogOpen.value = false;
+    showSuccess("Контакт удалён");
   } catch (error) {
     console.error("Ошибка при удалении контакта:", error);
     deleteError.value = "Не удалось удалить контакт. Попробуйте ещё раз.";
@@ -106,12 +116,14 @@ const save = async (form: ContactForm) => {
       avatarUrl,
       avatarFile: null,
     };
+    const isEditing = contact.id != null;
 
-    if (contact.id != null) {
+    if (isEditing) {
       await store.updateContact(contact);
     } else {
       await store.createContact(contact);
     }
+    showSuccess(isEditing ? "Изменения сохранены" : "Контакт создан");
     reset();
     store.close();
   } catch (error: unknown) {
@@ -251,6 +263,31 @@ watch(
   flex-direction: column;
   width: min(100%, 520px);
   gap: 14px;
+}
+
+.list-state {
+  display: grid;
+  min-height: 220px;
+  place-content: center;
+  gap: 12px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.list-state--error {
+  color: var(--color-danger);
+}
+
+.list-state button {
+  min-height: 40px;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 600;
 }
 
 @media (max-width: 720px) {

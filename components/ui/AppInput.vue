@@ -2,14 +2,14 @@
   <div class="field" :class="{ 'field--invalid': error }">
     <label>{{ label }}</label>
     <input
-      :type="type"
+      :id="inputId"
       v-model="modelValue"
+      :type="type"
       :placeholder="placeholder"
       :disabled="disabled"
       :aria-invalid="Boolean(error)"
       :aria-describedby="error ? `${inputId}-error` : undefined"
-      :id="inputId"
-    />
+    >
     <p v-if="error" :id="`${inputId}-error`" class="field__error">{{ error }}</p>
   </div>
 </template>

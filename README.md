@@ -1,75 +1,82 @@
-# Nuxt Minimal Starter
+# Mini CRM
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Небольшая CRM на Nuxt 4 для ведения личной базы контактов. Пользователь может зарегистрироваться, войти в систему, создавать, редактировать и удалять только собственные контакты, а также загружать для них аватары.
 
-## Setup
+## Возможности
 
-Make sure to install dependencies:
+- регистрация и вход по JWT в HTTP-only cookie;
+- изоляция контактов по владельцу;
+- создание, редактирование и удаление контактов;
+- серверная и клиентская валидация через Zod;
+- загрузка JPEG, PNG и WebP до 100 КБ;
+- очистка заменённых и неиспользуемых аватаров;
+- адаптивный интерфейс и доступные модальные окна.
+
+## Стек
+
+- Nuxt 4, Vue 3 и TypeScript;
+- Pinia;
+- Prisma 7 и SQLite;
+- Zod;
+- PrimeVue и Tailwind CSS.
+
+## Установка
+
+Требуется актуальная LTS-версия Node.js.
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+Создайте локальный файл окружения из примера:
 
 ```bash
-# npm
+cp .env.example .env
+```
+
+На Windows можно использовать:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Замените `JWT_SECRET` в `.env` на длинную случайную строку, затем примените миграции:
+
+```bash
+npx prisma migrate deploy
+```
+
+Запустите приложение:
+
+```bash
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+По умолчанию оно будет доступно на `http://localhost:3000`.
 
-Build the application for production:
+## Команды
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run dev        # режим разработки
+npm run build      # production-сборка
+npm run preview    # просмотр production-сборки
+npm run lint       # ESLint
+npm run typecheck  # проверка TypeScript
+npm run test       # тесты Vitest
 ```
 
-Locally preview production build:
+## Переменные окружения
 
-```bash
-# npm
-npm run preview
+- `DATABASE_URL` — адрес базы данных Prisma; локально используется `file:./dev.db`.
+- `JWT_SECRET` — секрет подписи JWT. Не добавляйте настоящее значение в Git.
 
-# pnpm
-pnpm preview
+## Структура
 
-# yarn
-yarn preview
+- `pages/` — страницы приложения;
+- `components/` — формы, списки и UI-компоненты;
+- `stores/` — состояние Pinia и обращения к API;
+- `server/api/` — серверные endpoints;
+- `shared/validation/` — общие схемы Zod;
+- `prisma/` — схема и миграции базы данных.
 
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+Локальная база `dev.db`, `.env` и пользовательские файлы из `public/uploads` исключены из Git.

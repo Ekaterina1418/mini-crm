@@ -1,8 +1,8 @@
 <template>
   <article class="item" :class="{ inactive: !contact.active }" @click="select">
     <div class="item__header">
-      <img v-if="contact.avatarUrl" :src="contact.avatarUrl" :alt="contact.name" />
-      <img v-else src="../assets/image/avatar.png" alt="Фото отсутствует" />
+      <img v-if="contact.avatarUrl" :src="contact.avatarUrl" :alt="contact.name" >
+      <img v-else src="../assets/image/avatar.png" alt="Фото отсутствует" >
       <span class="status" :class="{ 'status--inactive': !contact.active }">
         {{ contact.active ? "Активен" : "Неактивен" }}
       </span>

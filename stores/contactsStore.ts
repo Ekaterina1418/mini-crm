@@ -4,6 +4,8 @@ export const useContactsStore = defineStore("contacts", () => {
   const contacts = ref<Contact[]>([]);
   const isVisible = ref(false);
   const selectedContactId = ref<string | null>(null);
+  const isLoading = ref(false);
+  const loadError = ref("");
 
   const toContactPayload = (form: ContactForm) => {
     const { id, avatarFile, ...payload } = form;
@@ -12,11 +14,20 @@ export const useContactsStore = defineStore("contacts", () => {
   };
 
   const fetchContacts = async () => {
+    if (isLoading.value) return;
+
+    isLoading.value = true;
+    loadError.value = "";
+
     try {
       const data = await $fetch<{ contacts: Contact[] }>("/api/contacts");
       contacts.value = data.contacts;
     } catch (err) {
       console.error("Error fetching contacts:", err);
+      loadError.value =
+        "Не удалось загрузить контакты. Проверьте соединение и попробуйте ещё раз.";
+    } finally {
+      isLoading.value = false;
     }
   };
 
@@ -90,5 +101,7 @@ export const useContactsStore = defineStore("contacts", () => {
     selectedContact,
     selectedContactId,
     openEditModal,
+    isLoading,
+    loadError,
   };
 });

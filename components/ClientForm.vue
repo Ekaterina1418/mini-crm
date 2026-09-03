@@ -1,24 +1,36 @@
 <template>
-  <form @submit.prevent="onSave" :class="formClass">
+  <form :class="formClass" @submit.prevent="onSave">
     <div class="form-heading">
       <h2>{{ localForm.id ? "Редактировать контакт" : "Новый контакт" }}</h2>
       <p>Заполните основные данные и сохраните карточку.</p>
     </div>
-    <AppInput label="Имя" v-model="localForm.name" type="text" :error="errors.name" />
-    <AppInput label="Почта" v-model="localForm.email" type="email" :error="errors.email" />
-    <AppInput label="Номер телефона" v-model="localForm.phone" type="tel" :error="errors.phone" />
+    <AppInput v-model="localForm.name" label="Имя" type="text" :error="errors.name" />
+    <AppInput v-model="localForm.email" label="Почта" type="email" :error="errors.email" />
+    <AppInput v-model="localForm.phone" label="Номер телефона" type="tel" :error="errors.phone" />
     <AvatarUploader v-model="localForm.avatarFile" v-model:avatar-url="localForm.avatarUrl" />
-    <AppSelect label="Роль" v-model="localForm.role" :values="ROLES" />
-    <AppSelect label="Отдел" v-model="localForm.department" :values="DEPARTMENT" />
+    <AppSelect v-model="localForm.role" label="Роль" :values="ROLES" />
+    <AppSelect v-model="localForm.department" label="Отдел" :values="DEPARTMENT" />
     <AppCheckbox v-model="localForm.active" />
     <p v-if="submitError" class="form-error" role="alert">
       {{ submitError }}
     </p>
     <div class="wrapper-btn">
-      <AppButton :label="isSaving ? 'Сохранение...' : 'Сохранить'" :disabled="!isDirty || isSaving" severity="primary"
-        size="sm" type="submit" />
-      <AppButton v-if="localForm.id" label="Удалить" @click="$emit('delete')" severity="danger" size="sm"
-        type="button" />
+      <AppButton
+        :label="isSaving ? 'Сохранение...' : 'Сохранить'"
+        :disabled="!isDirty || isSaving"
+        severity="primary"
+        size="sm"
+        type="submit"
+      />
+      <AppButton
+        v-if="localForm.id"
+        label="Удалить"
+        :disabled="isSaving"
+        severity="danger"
+        size="sm"
+        type="button"
+        @click="$emit('delete')"
+      />
     </div>
   </form>
 </template>

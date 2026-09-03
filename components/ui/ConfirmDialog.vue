@@ -1,7 +1,13 @@
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="confirm-overlay">
-      <div class="confirm-dialog" role="alertdialog" aria-modal="true">
+      <div
+        ref="dialogRef"
+        class="confirm-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        :aria-label="title"
+      >
         <h3>{{ title }}</h3>
         <p>{{ message }}</p>
         <p v-if="error" class="confirm-error" role="alert">
@@ -37,20 +43,77 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "confirm"): void;
-  (e: "cancel"): void;
+  (e: "confirm" | "cancel"): void;
 }>();
 
-const onKeydown = (e:KeyboardEvent) => {
- if (e.key !== "Escape" || !props.isOpen) return;
+const dialogRef = ref<HTMLElement | null>(null);
+let previouslyFocusedElement: HTMLElement | null = null;
 
-  e.preventDefault();
+const getFocusableElements = () => {
+  if (!dialogRef.value) return [];
+
+  return Array.from(
+    dialogRef.value.querySelectorAll<HTMLElement>(
+      'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+    ),
+  );
+};
+
+const onKeydown = (e: KeyboardEvent) => {
+  if (!props.isOpen) return;
+
+  if (e.key === "Escape") {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    if (!props.isLoading) {
+      emit("cancel");
+    }
+    return;
+  }
+
+  if (e.key !== "Tab") return;
+
+  const focusableElements = getFocusableElements();
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements.at(-1);
+
+  if (!firstElement || !lastElement) {
+    e.preventDefault();
+    return;
+  }
+
   e.stopImmediatePropagation();
 
-  if(!props.isLoading) {
-    emit("cancel")
+  if (e.shiftKey && document.activeElement === firstElement) {
+    e.preventDefault();
+    lastElement.focus();
+  } else if (!e.shiftKey && document.activeElement === lastElement) {
+    e.preventDefault();
+    firstElement.focus();
+  } else if (!dialogRef.value?.contains(document.activeElement)) {
+    e.preventDefault();
+    firstElement.focus();
   }
-}
+};
+
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      previouslyFocusedElement = document.activeElement as HTMLElement | null;
+      nextTick(() => getFocusableElements()[0]?.focus());
+      return;
+    }
+
+    nextTick(() => {
+      if (previouslyFocusedElement?.isConnected) {
+        previouslyFocusedElement.focus();
+      }
+    });
+  },
+);
+
 onMounted(() => {
   window.addEventListener("keydown", onKeydown, true);
 });
