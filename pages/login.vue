@@ -1,31 +1,42 @@
 <template>
   <div class="page">
-  <form class="form" @submit.prevent="onLogin">
-    <div class="form__header">
-      <p>Mini CRM</p>
-      <h1>Вход</h1>
-    </div>
-    <label class="form__field">
-      <span>Email</span>
-      <input v-model="email" class="form__input" placeholder="name@example.com" >
-    </label>
-    <label class="form__field">
-      <span>Пароль</span>
-      <input v-model="password" type="password" class="form__input" placeholder="Введите пароль" >
-    </label>
-     <AppButton label="Войти" severity="primary" size="md" type="submit"/>
+    <form class="form" @submit.prevent="onLogin">
+      <div class="form__header">
+        <p>Mini CRM</p>
+        <h1>Вход</h1>
+      </div>
+      <label class="form__field">
+        <span>Email</span>
+        <input
+          v-model="email"
+          class="form__input"
+          placeholder="name@example.com"
+        >
+      </label>
+      <label class="form__field">
+        <span>Пароль</span>
+        <input
+          v-model="password"
+          type="password"
+          class="form__input"
+          placeholder="Введите пароль"
+        >
+      </label>
+      <AppButton label="Войти" severity="primary" size="md" type="submit" />
       <p class="form__sub">
         Нет аккаунта?
-        <NuxtLink :to="{ path: '/register' }" class="form__link"> Зарегистрироваться </NuxtLink>
+        <NuxtLink :to="{ path: '/register' }" class="form__link">
+          Зарегистрироваться
+        </NuxtLink>
       </p>
-  </form>
- </div>
+    </form>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { useAppToast } from '~/shared/lib/useToast';
-import { useAuthStore} from '~/stores/userStore';
+import { useAppToast } from "~/shared/lib/useToast";
+import { useAuthStore } from "~/stores/userStore";
 
 const email = ref("");
 const password = ref("");
@@ -34,21 +45,23 @@ const { showError } = useAppToast();
 const userStore = useAuthStore();
 
 const onLogin = async () => {
-  const { data } = await userStore.login(email.value, password.value);
-  if (!data.value?.success) {
-       showError('Неверный email или пароль');
+  try {
+    const data = await userStore.login(email.value, password.value);
+    if (!data.success) {
+      showError("Неверный email или пароль");
 
-    return;
+      return;
+    }
+    router.push("/");
+  } catch (error) {
+    console.error("Ошибка входа:", error);
+    showError("Неверный email или пароль");
   }
-
-  router.push('/');
 };
-
-
 </script>
 
 <style scoped>
-  .page {
+.page {
   min-height: 100vh;
   display: flex;
   align-items: center;

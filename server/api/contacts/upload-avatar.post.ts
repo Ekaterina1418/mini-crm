@@ -2,14 +2,14 @@ import formidable, { type Files } from "formidable";
 import path from "path";
 import { createError } from "h3";
 import fs from "fs";
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdmin } from "~/server/utils/requireAdmin";
 
 const MAX_FILE_SIZE = 100 * 1024;
 const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const ALLOWED_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 
 export default defineEventHandler(async (event) => {
-  await requireAuth(event);
+  await requireAdmin(event);
 
   const uploadDir = path.join(process.cwd(), "public/uploads");
 

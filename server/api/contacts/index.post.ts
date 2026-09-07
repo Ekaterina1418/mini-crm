@@ -2,14 +2,14 @@ import { nanoid } from "nanoid";
 import { createError, readBody } from "h3";
 import { Prisma } from "@prisma/client";
 import prisma from "~/server/db/prisma";
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdmin } from "~/server/utils/requireAdmin";
 import {
   contactInputSchema,
   formatContactValidationError,
 } from "~/shared/validation/contacts";
 
 export default defineEventHandler(async (event) => {
-  const user = await requireAuth(event);
+  const user = await requireAdmin(event);
   const result = contactInputSchema.safeParse(await readBody(event));
 
   if (!result.success) {

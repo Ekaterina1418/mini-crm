@@ -2,10 +2,10 @@ import { createError, readBody } from "h3";
 import { rm } from "node:fs/promises";
 import path from "node:path";
 import prisma from "~/server/db/prisma";
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdmin } from "~/server/utils/requireAdmin";
 
 export default defineEventHandler(async (event) => {
-  await requireAuth(event);
+  await requireAdmin(event);
 
   const body = await readBody<{ avatarUrl?: unknown }>(event);
 

@@ -3,34 +3,31 @@ import prisma from "~/server/db/prisma";
 import { rm } from "node:fs/promises";
 import path from "node:path";
 import { Prisma } from "@prisma/client";
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdmin } from "~/server/utils/requireAdmin";
 import {
   contactInputSchema,
   formatContactValidationError,
 } from "~/shared/validation/contacts";
 
-
 const deleteUploadedAvatar = async (avatarUrl: string | null) => {
-  if (!avatarUrl) return
+  if (!avatarUrl) return;
 
-  const fileName = path.posix.basename(avatarUrl)
+  const fileName = path.posix.basename(avatarUrl);
 
   if (avatarUrl !== `/uploads/${fileName}`) {
     return;
   }
-  const filePath = path.join( process.cwd(), "public", "uploads", fileName)
+  const filePath = path.join(process.cwd(), "public", "uploads", fileName);
 
   try {
-    await rm(filePath, {force: true})
+    await rm(filePath, { force: true });
   } catch (error) {
     console.error("Не удалось удалить старый аватар:", error);
   }
-}
-
-
+};
 
 export default defineEventHandler(async (event) => {
-  const user = await requireAuth(event);
+  await requireAdmin(event);
   const id = event.context.params?.id;
 
   if (!id) {
@@ -52,8 +49,8 @@ export default defineEventHandler(async (event) => {
 
   const body = result.data;
 
-  const existing = await prisma.contact.findFirst({
-    where: { id, ownerId: user.id },
+  const existing = await prisma.contact.findUnique({
+    where: { id },
   });
 
   if (!existing) {
@@ -89,10 +86,7 @@ export default defineEventHandler(async (event) => {
     }
     throw error;
   }
-  if (
-    existing.avatarUrl &&
-    existing.avatarUrl !== updated.avatarUrl
-  ) {
+  if (existing.avatarUrl && existing.avatarUrl !== updated.avatarUrl) {
     await deleteUploadedAvatar(existing.avatarUrl);
   }
   return { success: true, contact: updated };

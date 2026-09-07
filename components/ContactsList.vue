@@ -10,6 +10,7 @@
           v-for="item in activeContacts"
           :key="item.id"
           :contact="item"
+          :editable="editable"
           @select="onSelectContact"
         />
       </div>
@@ -27,6 +28,7 @@
           v-for="item in inactiveContacts"
           :key="item.id"
           :contact="item"
+          :editable="editable"
           @select="onSelectContact"
         />
       </div>
@@ -42,6 +44,7 @@ import type { Contact } from "~/types/contactTypes";
 
 const props = defineProps<{
   contacts: Contact[];
+  editable: boolean;
 }>();
 
 const emit = defineEmits<{

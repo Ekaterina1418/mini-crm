@@ -16,18 +16,32 @@
         <h2>База контактов</h2>
         <p>Создавайте карточки, обновляйте данные и отслеживайте активность.</p>
       </div>
-      <AddForm @click="store.openCreateModal" />
+      <AddForm v-if="isAdmin" @click="store.openCreateModal" />
     </div>
 
     <div v-if="store.isLoading" class="list-state" role="status">
       Загружаем контакты…
     </div>
-    <div v-else-if="store.loadError" class="list-state list-state--error" role="alert">
+    <div
+      v-else-if="store.loadError"
+      class="list-state list-state--error"
+      role="alert"
+    >
       <p>{{ store.loadError }}</p>
-      <button type="button" @click="store.fetchContacts">Попробовать снова</button>
+      <button type="button" @click="store.fetchContacts">
+        Попробовать снова
+      </button>
     </div>
-    <ContactsList v-else :contacts="store.contacts" @select="openEditModal" />
-    <ModalForm v-if="store.isVisible"  :is-locked="isSaving || isDeleting || isDeleteDialogOpen">
+    <ContactsList
+      v-else
+      :contacts="store.contacts"
+      :editable="isAdmin"
+      @select="openEditModal"
+    />
+    <ModalForm
+      v-if="store.isVisible && isAdmin"
+      :is-locked="isSaving || isDeleting || isDeleteDialogOpen"
+    >
       <ClientForm
         form-class="form-modal"
         :contact="formClient"
@@ -71,13 +85,14 @@ const isDeleteDialogOpen = ref(false);
 const isDeleting = ref(false);
 const deleteError = ref("");
 const formClient = ref<ContactForm>(cloneDeep(INITIAL_FORM));
+const isAdmin = computed(() => userStore.user?.role === "admin");
 
 const reset = () => {
   formClient.value = cloneDeep(INITIAL_FORM);
 };
 
 const openDeleteDialog = () => {
-   deleteError.value = "";
+  deleteError.value = "";
   isDeleteDialogOpen.value = true;
 };
 const confirmDelete = async () => {
@@ -155,6 +170,7 @@ const save = async (form: ContactForm) => {
 };
 
 const openEditModal = (id: string) => {
+  if (!isAdmin.value) return;
   store.openEditModal(id);
 };
 

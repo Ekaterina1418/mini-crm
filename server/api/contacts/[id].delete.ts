@@ -2,10 +2,10 @@ import { createError } from "h3";
 import { rm } from "node:fs/promises";
 import path from "node:path";
 import prisma from "~/server/db/prisma";
-import { requireAuth } from "~/server/utils/requireAuth";
+import { requireAdmin } from "~/server/utils/requireAdmin";
 
 export default defineEventHandler(async (event) => {
-  const user = await requireAuth(event);
+  await requireAdmin(event);
   const id = event.context.params?.id;
 
   if (!id) {
@@ -15,8 +15,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const existing = await prisma.contact.findFirst({
-    where: { id, ownerId: user.id },
+  const existing = await prisma.contact.findUnique({
+    where: { id },
   });
 
   if (!existing) {
@@ -33,10 +33,9 @@ export default defineEventHandler(async (event) => {
     const fileName = path.posix.basename(existing.avatarUrl);
     if (existing.avatarUrl === `/uploads/${fileName}`) {
       try {
-        await rm(
-          path.join(process.cwd(), "public", "uploads", fileName),
-          { force: true },
-        );
+        await rm(path.join(process.cwd(), "public", "uploads", fileName), {
+          force: true,
+        });
       } catch (error) {
         console.error("Не удалось удалить аватар контакта:", error);
       }

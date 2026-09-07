@@ -1,7 +1,15 @@
 <template>
-  <article class="item" :class="{ inactive: !contact.active }" @click="select">
+  <article
+    class="item"
+    :class="{ inactive: !contact.active, editable: editable }"
+    @click="select"
+  >
     <div class="item__header">
-      <img v-if="contact.avatarUrl" :src="contact.avatarUrl" :alt="contact.name" >
+      <img
+        v-if="contact.avatarUrl"
+        :src="contact.avatarUrl"
+        :alt="contact.name"
+      >
       <img v-else src="../assets/image/avatar.png" alt="Фото отсутствует" >
       <span class="status" :class="{ 'status--inactive': !contact.active }">
         {{ contact.active ? "Активен" : "Неактивен" }}
@@ -33,6 +41,7 @@ import type { Contact } from "~/types/contactTypes";
 
 const props = defineProps<{
   contact: Contact;
+  editable: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -40,6 +49,7 @@ const emit = defineEmits<{
 }>();
 
 const select = () => {
+  if (!props.editable) return;
   emit("select", props.contact.id);
 };
 </script>
@@ -55,14 +65,15 @@ const select = () => {
   padding: 14px;
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
-  cursor: pointer;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.15s ease;
 }
-
-.item:hover {
+.item.editable {
+  cursor: pointer;
+}
+.item.editable:hover {
   border-color: var(--color-primary);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
   transform: translateY(-1px);

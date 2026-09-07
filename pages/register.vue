@@ -7,7 +7,11 @@
       </div>
       <label class="form__field">
         <span>Email</span>
-        <input v-model="email" class="form__input" placeholder="name@example.com" >
+        <input
+          v-model="email"
+          class="form__input"
+          placeholder="name@example.com"
+        >
       </label>
       <label class="form__field">
         <span>Пароль</span>
@@ -22,7 +26,12 @@
         <span>Имя</span>
         <input v-model="name" class="form__input" placeholder="Ваше имя" >
       </label>
-      <AppButton label="Зарегистрироваться" severity="primary" size="md" type="submit"/>
+      <AppButton
+        label="Зарегистрироваться"
+        severity="primary"
+        size="md"
+        type="submit"
+      />
       <p class="form__sub">
         Уже есть аккаунт?
         <NuxtLink :to="{ path: '/login' }" class="form__link"> Войти </NuxtLink>
@@ -32,10 +41,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAuthStore} from '~/stores/userStore';
+import { useAuthStore } from "~/stores/userStore";
 import { useRouter } from "vue-router";
-import { useAppToast } from '~/shared/lib/useToast';
-
+import { useAppToast } from "~/shared/lib/useToast";
 
 const email = ref("");
 const password = ref("");
@@ -45,25 +53,23 @@ const userStore = useAuthStore();
 const { showError } = useAppToast();
 
 const onRegister = async () => {
-  const { data, error } = await userStore.register(email.value, password.value, name.value);
+  try {
+    const data = await userStore.register(
+      email.value,
+      password.value,
+      name.value,
+    );
 
-  if (error.value) {
-    showError("Ошибка запроса");
-    return;
+    if (!data.success) {
+      showError(data.message);
+      return;
+    }
+
+    router.push("/login");
+  } catch (error) {
+    console.error("Ошибка регистрации:", error);
+    showError("Не удалось зарегистрироваться. Попробуйте ещё раз.");
   }
-
-  const res = data.value;
-  if (!res) {
-    showError("Нет ответа от сервера");
-    return;
-  }
-
-  if (!res.success) {
-    showError(res.message);
-    return;
-  }
-  router.push('/login');
-
 };
 </script>
 <style scoped>

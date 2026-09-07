@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createContactMock, readBodyMock, requireAuthMock } = vi.hoisted(() => ({
+const { createContactMock, readBodyMock, requireAdminMock } = vi.hoisted(() => ({
   createContactMock: vi.fn(),
   readBodyMock: vi.fn(),
-  requireAuthMock: vi.fn(),
+  requireAdminMock: vi.fn(),
 }));
 
 vi.mock("h3", async (importOriginal) => {
@@ -15,8 +15,8 @@ vi.mock("~/server/db/prisma", () => ({
   default: { contact: { create: createContactMock } },
 }));
 
-vi.mock("~/server/utils/requireAuth", () => ({
-  requireAuth: requireAuthMock,
+vi.mock("~/server/utils/requireAdmin", () => ({
+  requireAdmin: requireAdminMock,
 }));
 
 vi.stubGlobal("defineEventHandler", (handler: unknown) => handler);
@@ -30,7 +30,7 @@ const event = { node: { res: { statusCode: 200 } } };
 describe("POST /api/contacts", () => {
   beforeEach(() => {
     event.node.res.statusCode = 200;
-    requireAuthMock.mockResolvedValue({ id: "owner-1" });
+    requireAdminMock.mockResolvedValue({ id: "owner-1" });
   });
 
   it("возвращает 422 для некорректных данных", async () => {
@@ -42,7 +42,7 @@ describe("POST /api/contacts", () => {
     expect(createContactMock).not.toHaveBeenCalled();
   });
 
-  it("создаёт контакт только для авторизованного владельца", async () => {
+  it("создаёт контакт от имени администратора", async () => {
     const body = {
       name: "Иван Иванов",
       email: "ivan@example.com",
@@ -67,3 +67,5 @@ describe("POST /api/contacts", () => {
     expect(event.node.res.statusCode).toBe(201);
   });
 });
+
+
